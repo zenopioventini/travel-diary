@@ -71,11 +71,36 @@ class Travel_Diary {
 		$this->plugin_name = 'travel-diary';
 		$this->version = '1.0.0';
 
+		$this->load_plugin_files("../public/post-types");
+//		$this->load_plugin_files("../public/taxonomies");
+//		$this->load_plugin_files("../public/widgets");
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
+	}
+	
+	/**
+	 * Load all files with extension in a directory
+	 */
+	private function load_plugin_files( $directory, $extension = 'php' ){
+		$plugin_directory = sprintf("%s/%s/", dirname(__FILE__), $directory );
+		if (file_exists($plugin_directory)){
+			if ($handle = opendir( $plugin_directory )) {
+				$files = array();
+				while (false !== ($file = readdir($handle))){
+					if ($file != "." && $file != ".." && strtolower(substr($file, strrpos($file, '.') + 1)) == $extension){
+						$files[] = sprintf("%s/%s", $plugin_directory, $file);
+					}
+				}
+				closedir($handle);
+				sort($files);
+				foreach ($files as $file) {
+					require_once($file);
+				}
+			}
+		}
 	}
 
 	/**
@@ -169,6 +194,13 @@ class Travel_Diary {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		
+		/**
+		 * Definiamo il post type delle Tappe.
+		 * **/
+		$post_types_ex = new Travel_Diary_Cpt_Entry();
+		$this->loader->add_action( 'init', $post_types_ex, 'create_post_type' );
+		
 
 	}
 
