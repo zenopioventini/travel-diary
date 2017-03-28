@@ -201,6 +201,11 @@ class Travel_Diary {
 		$post_types_ex = new Travel_Diary_Cpt_Entry();
 		$this->loader->add_action( 'init', $post_types_ex, 'create_post_type' );
 		
+		/**
+		 * Definiamo il post type del viaggio.
+		 * **/
+		$post_types_ex = new Travel_Diary_Cpt_Trip();
+		$this->loader->add_action( 'init', $post_types_ex, 'create_post_type' );		
 
 	}
 
