@@ -86,6 +86,67 @@ if(!class_exists('Travel_Diary_Cpt_Entry'))
 				
 					register_post_type( self::POST_TYPE, $args );
 				
+					
+					if(function_exists("register_field_group"))
+					{
+						register_field_group(array (
+								'id' => 'acf_campi-della-tappa',
+								'title' => 'Campi della tappa',
+								'fields' => array (
+										array (
+												'key' => self::FIELD_PREFIX . 'arrivo',
+												'label' => 'Arrivo',
+												'name' => self::FIELD_PREFIX . 'arrivo',
+												'type' => 'date_picker',
+												'instructions' => 'Data di arrivo',
+												'date_format' => 'yymmdd',
+												'display_format' => 'dd/mm/yy',
+												'first_day' => 1,
+										),
+										array (
+												'key' => self::FIELD_PREFIX . 'partenza',
+												'label' => 'Partenza',
+												'name' => self::FIELD_PREFIX . 'partenza',
+												'type' => 'date_picker',
+												'instructions' => 'Data della partenza',
+												'date_format' => 'yymmdd',
+												'display_format' => 'dd/mm/yy',
+												'first_day' => 1,
+										),
+										array (
+												'key' => self::FIELD_PREFIX . 'posizione',
+												'label' => 'Posizione',
+												'name' => self::FIELD_PREFIX . 'posizione',
+												'type' => 'google_map',
+												'instructions' => 'Posizione della tappa',
+												'center_lat' => '42.972502',
+												'center_lng' => '12.304688',
+												'zoom' => 14,
+												'height' => '',
+										),
+								),
+								'location' => array (
+										array (
+												array (
+														'param' => 'post_type',
+														'operator' => '==',
+														'value' => 'td_entry',
+														'order_no' => 0,
+														'group_no' => 0,
+												),
+										),
+								),
+								'options' => array (
+										'position' => 'normal',
+										'layout' => 'default',
+										'hide_on_screen' => array (
+										),
+								),
+								'menu_order' => 0,
+						));
+					}
+					
+						
 			}
 		}
 }
