@@ -207,6 +207,10 @@ class Travel_Diary {
 		$post_types_ex = new Travel_Diary_Cpt_Trip();
 		$this->loader->add_action( 'init', $post_types_ex, 'create_post_type' );		
 
+		/**
+		 * Definisco hook per la creazione delle categorie per i nuovi viaggi
+		 */
+		$this->loader->add_action( 'wp_insert_post', $plugin_public, 'new_category_trip', 10, 3);
 	}
 
 	/**
