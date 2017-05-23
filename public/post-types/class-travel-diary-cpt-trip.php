@@ -81,7 +81,8 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 							"hierarchical" => false,
 							"rewrite" => array( "slug" => "trip", "with_front" => true ),
 							"query_var" => true,
-							"supports" => array( "title", "editor", "thumbnail", "comments", "revisions" ),
+							"supports" => array( "title", "editor", "thumbnail", "comments", "revisions",  ),
+							'taxonomies' => array('category', "post_tag"),
 					);
 				
 					register_post_type( self::POST_TYPE, $args );
