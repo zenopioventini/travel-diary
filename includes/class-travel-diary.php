@@ -178,6 +178,7 @@ class Travel_Diary {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		
 
 	}
 
@@ -211,6 +212,7 @@ class Travel_Diary {
 		 * Definisco hook per la creazione delle categorie per i nuovi viaggi
 		 */
 		$this->loader->add_action( 'wp_insert_post', $plugin_public, 'new_category_trip', 10, 3);
+		$this->loader->add_action( 'before_delete_post', $plugin_public, 'trip_delete' );
 	}
 
 	/**

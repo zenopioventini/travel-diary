@@ -126,7 +126,7 @@ class Travel_Diary_Public {
 			// utilizzare la categoria padre dei viaggi e creare una nuova categoria per il 
 			// viaggio con lo slug del post (potrebbe infatti esistere un viaggio con lo stesso nome).
 			// non dovrebbe mai esistere ma nel caso uso l'esistente... 
-			error_log(print_r($post, true));
+
 			$exists_category = get_term_by('slug', $post->post_name, 'category', OBJECT);
 			$result = false;
 			if(!$exists_category) {
@@ -141,7 +141,7 @@ class Travel_Diary_Public {
 					error_log ($result->get_error_message());
 				}
 			} else {
-				$result = (int) $exists_category;
+				$result = (int) $exists_category->term_id;
 			}
 			if($result){
 				// aggancio al post la nuova tassonomia creata
@@ -150,5 +150,40 @@ class Travel_Diary_Public {
 			
 		}
 	}
+	
+	/** pulizia per i dati del viaggio :
+	 * se cancello un viaggio devo:
+	 * - cancellare la categoria con lo stesso slug 
+	 * - mettere in bozza le tappe collegate? 
+	 * - ...**/
+	public function trip_delete($post_id){
+		global $post_type;
+		if ($post_type == Travel_Diary_Cpt_Trip::POST_TYPE){
+			$deleting_post = get_post($post_id);
+			//TODO ignorare il codice per le revisioni
+			if ($deleting_post) {
+				$orig_slug = str_replace("__trashed", "", $deleting_post->post_name);
+				//TODO no non va bene devo cercare tra le categorie associate al post
+				$trip_category = get_term_by( 'slug', $orig_slug, 'category', OBJECT );
+				if ($trip_category) {
+					error_log("eliminato il post $post_id con slug " . $deleting_post->post_name . ", elimino la categoria ". $orig_slug . " che ha lo stesso slug");
+					wp_delete_term( $trip_category->term_id, 'category' );
+				} else {
+					error_log("eliminato il post $post_id con slug " . $deleting_post->post_name . ", nessuna categoria con slug " . $orig_slug . " trovata!");
+				}
+				$entries = get_field(Travel_Diary_Cpt_Trip::FIELD_PREFIX . 'entry_of_trip', $post_id);
+				if ($entries && is_array($entries) && count($entries) > 0) {
+					foreach ($entries as $entry_id) {
+						$entry = get_post($entry_id);
+						if ($entry) {
+							$entry->post_status = 'draft';
+							wp_update_post($entry);
+						}
+					}
+				}
+			}
+		}
+	}
+	//add_action( 'before_delete_post', 'my_func' );
 
 }
