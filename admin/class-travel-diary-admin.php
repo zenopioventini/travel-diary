@@ -99,5 +99,14 @@ class Travel_Diary_Admin {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/travel-diary-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
-
+	
+	public function entry_filter_query ($args, $field, $post_id) {
+		//error_log(print_r($args, true));
+		$author = get_current_user_id();
+		$args['author'] = $author;
+		return $args;
+	}
+	
+	//add_filter('acf/fields/relationship/query', '$args, $field, $post_id', 10, 3);
+	
 }

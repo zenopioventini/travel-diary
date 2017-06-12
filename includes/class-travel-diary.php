@@ -179,6 +179,7 @@ class Travel_Diary {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		
+		$this->loader->add_filter( 'acf/fields/relationship/query/key='.Travel_Diary_Cpt_Trip::FIELD_PREFIX .'entry_of_trip', $plugin_admin, 'entry_filter_query', 10, 3 );
 
 	}
 
