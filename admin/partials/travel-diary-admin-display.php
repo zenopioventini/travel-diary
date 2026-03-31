@@ -14,3 +14,13 @@
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<div class="wrap">
+	<h2>Travel Diary Settings</h2>
+	<form action="options.php" method="post">
+		<?php
+		settings_fields( 'travel_diary_options_group' );
+		do_settings_sections( $this->plugin_name );
+		submit_button();
+		?>
+	</form>
+</div>

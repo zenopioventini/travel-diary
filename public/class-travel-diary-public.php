@@ -111,43 +111,19 @@ class Travel_Diary_Public {
 			return;
 		
 		if ($post->post_type == Travel_Diary_Cpt_Trip::POST_TYPE && $post->post_status == 'publish'){
-			$trip_category_slug = 'trip';
-			// TODO verificare se è selezionata la categoria padre dei viaggi
-			// $trip_category_slug = get_term('trip_parent');
-			// Verificare se esite
-			$trip_category = get_term_by('slug', $trip_category_slug, 'category', OBJECT);
-			// se non è selezionata o non esiste creare un default e impostarla
-			if(!$trip_category) {
-				error_log ("Parent trip category not found, I'll do it!");
-				$trip_category_id = wp_create_category('Trip');
-			} else {
-				$trip_category_id = (int)$trip_category->term_id;
-			}
-			// utilizzare la categoria padre dei viaggi e creare una nuova categoria per il 
-			// viaggio con lo slug del post (potrebbe infatti esistere un viaggio con lo stesso nome).
-			// non dovrebbe mai esistere ma nel caso uso l'esistente... 
-
-			$exists_category = get_term_by('slug', $post->post_name, 'category', OBJECT);
-			$result = false;
-			if(!$exists_category) {
-				$cat_args = array('cat_name' => ucfirst(str_replace("-", " ", $post->post_name)),
-						'category_description' => '',
-						'category_nicename' => $post->post_name,
-						'category_parent' => $trip_category_id,
-						'taxonomy' => 'category' );
-				$result = wp_insert_category($cat_args, true);
+			$exists_term = get_term_by('slug', $post->post_name, 'td_trip_cat', OBJECT);
+			if(!$exists_term) {
+				$term_name = ucfirst(str_replace("-", " ", $post->post_name));
+				$result = wp_insert_term($term_name, 'td_trip_cat', array('slug' => $post->post_name));
 				if (is_wp_error($result)) {
-					error_log ("Trip category insert error!");
-					error_log ($result->get_error_message());
+					error_log ("Trip category insert error: " . $result->get_error_message());
+				} else {
+					$term_id = $result['term_id'];
+					wp_set_post_terms( $post_id, array($term_id), 'td_trip_cat', false );
 				}
 			} else {
-				$result = (int) $exists_category->term_id;
+				wp_set_post_terms( $post_id, array($exists_term->term_id), 'td_trip_cat', false );
 			}
-			if($result){
-				// aggancio al post la nuova tassonomia creata
-				wp_set_post_categories( $post_id, $result, false );
-			}
-			
 		}
 	}
 	
@@ -160,14 +136,12 @@ class Travel_Diary_Public {
 		global $post_type;
 		if ($post_type == Travel_Diary_Cpt_Trip::POST_TYPE){
 			$deleting_post = get_post($post_id);
-			//TODO ignorare il codice per le revisioni
 			if ($deleting_post) {
 				$orig_slug = str_replace("__trashed", "", $deleting_post->post_name);
-				//TODO no non va bene devo cercare tra le categorie associate al post
-				$trip_category = get_term_by( 'slug', $orig_slug, 'category', OBJECT );
-				if ($trip_category) {
+				$trip_term = get_term_by( 'slug', $orig_slug, 'td_trip_cat', OBJECT );
+				if ($trip_term) {
 					error_log("eliminato il post $post_id con slug " . $deleting_post->post_name . ", elimino la categoria ". $orig_slug . " che ha lo stesso slug");
-					wp_delete_term( $trip_category->term_id, 'category' );
+					wp_delete_term( $trip_term->term_id, 'td_trip_cat' );
 				} else {
 					error_log("eliminato il post $post_id con slug " . $deleting_post->post_name . ", nessuna categoria con slug " . $orig_slug . " trovata!");
 				}
@@ -178,6 +152,29 @@ class Travel_Diary_Public {
 						if ($entry) {
 							$entry->post_status = 'draft';
 							wp_update_post($entry);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Sincronizza la tassonomia alle tappe (entries) associate tramite il campo ACF relazionale
+	 */
+	public function sync_trip_entries_taxonomies($post_id) {
+		if(wp_is_post_revision($post_id)) return;
+		
+		if (get_post_type($post_id) == Travel_Diary_Cpt_Trip::POST_TYPE) {
+			$trip = get_post($post_id);
+			if ($trip->post_status == 'publish') {
+				// get the assigned term for this trip
+				$trip_term = get_term_by('slug', $trip->post_name, 'td_trip_cat', OBJECT);
+				if ($trip_term) {
+					$entries = get_field(Travel_Diary_Cpt_Trip::FIELD_PREFIX . 'entry_of_trip', $post_id);
+					if ($entries && is_array($entries)) {
+						foreach ($entries as $entry_id) {
+							wp_set_post_terms( $entry_id, array($trip_term->term_id), 'td_trip_cat', false );
 						}
 					}
 				}

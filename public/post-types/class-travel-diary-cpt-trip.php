@@ -64,6 +64,29 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 							"attributes" => __( 'Trips Attributes', 'twentyseventeen' ),
 					);
 				
+					$tax_labels = array(
+						'name' => _x( 'Trip Categories', 'taxonomy general name', 'twentyseventeen' ),
+						'singular_name' => _x( 'Trip Category', 'taxonomy singular name', 'twentyseventeen' ),
+						'search_items' =>  __( 'Search Categories', 'twentyseventeen' ),
+						'all_items' => __( 'All Categories', 'twentyseventeen' ),
+						'parent_item' => __( 'Parent Category', 'twentyseventeen' ),
+						'parent_item_colon' => __( 'Parent Category:', 'twentyseventeen' ),
+						'edit_item' => __( 'Edit Category', 'twentyseventeen' ), 
+						'update_item' => __( 'Update Category', 'twentyseventeen' ),
+						'add_new_item' => __( 'Add New Category', 'twentyseventeen' ),
+						'new_item_name' => __( 'New Category Name', 'twentyseventeen' ),
+						'menu_name' => __( 'Trip Categories', 'twentyseventeen' ),
+					);
+					
+					register_taxonomy('td_trip_cat', array('td_trip', 'td_entry'), array(
+						'hierarchical' => true,
+						'labels' => $tax_labels,
+						'show_ui' => true,
+						'show_admin_column' => true,
+						'query_var' => true,
+						'rewrite' => array( 'slug' => 'viaggio' ),
+					));
+				
 					$args = array(
 							"label" => __( 'Trip', 'twentyseventeen' ),
 							"labels" => $labels,
@@ -71,7 +94,7 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 							"public" => true,
 							"publicly_queryable" => true,
 							"show_ui" => true,
-							"show_in_rest" => false,
+							"show_in_rest" => true,
 							"rest_base" => "",
 							"has_archive" => false,
 							"show_in_menu" => true,
@@ -81,15 +104,15 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 							"hierarchical" => false,
 							"rewrite" => array( "slug" => "trip", "with_front" => true ),
 							"query_var" => true,
-							"supports" => array( "title", "editor", "thumbnail", "comments", "revisions",  ),
-							'taxonomies' => array('category', "post_tag"),
+							"supports" => array( "title", "editor", "thumbnail", "excerpt", "comments", "revisions",  ),
+							'taxonomies' => array('td_trip_cat'),
 					);
 				
 					register_post_type( self::POST_TYPE, $args );
 					
-				if(function_exists("register_field_group"))
+				if(function_exists("acf_add_local_field_group"))
 				{
-					register_field_group(array (
+					acf_add_local_field_group(array (
 						'id' => 'acf_entries-of-trip',
 						'title' => 'Entries of Trip',
 						'fields' => array (

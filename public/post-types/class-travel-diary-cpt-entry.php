@@ -71,7 +71,7 @@ if(!class_exists('Travel_Diary_Cpt_Entry'))
 							"public" => true,
 							"publicly_queryable" => true,
 							"show_ui" => true,
-							"show_in_rest" => false,
+							"show_in_rest" => true,
 							"rest_base" => "",
 							"has_archive" => false,
 							"show_in_menu" => true,
@@ -81,15 +81,15 @@ if(!class_exists('Travel_Diary_Cpt_Entry'))
 							"hierarchical" => false,
 							"rewrite" => array( "slug" => "entry", "with_front" => true ),
 							"query_var" => true,
-							"supports" => array( "title", "editor", "thumbnail", "comments", "revisions" ),
+							"supports" => array( "title", "editor", "excerpt", "thumbnail", "comments", "revisions" ),
 					);
 				
 					register_post_type( self::POST_TYPE, $args );
 				
 					
-					if(function_exists("register_field_group"))
+					if(function_exists("acf_add_local_field_group"))
 					{
-						register_field_group(array (
+						acf_add_local_field_group(array (
 								'id' => 'acf_campi-della-tappa',
 								'title' => 'Campi della tappa',
 								'fields' => array (

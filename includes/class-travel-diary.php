@@ -179,7 +179,18 @@ class Travel_Diary {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		
-		$this->loader->add_filter( 'acf/fields/relationship/query/key='.Travel_Diary_Cpt_Trip::FIELD_PREFIX .'entry_of_trip', $plugin_admin, 'entry_filter_query', 10, 3 );
+		$this->loader->add_filter( 'acf/fields/relationship/query/name='.Travel_Diary_Cpt_Trip::FIELD_PREFIX .'entry_of_trip', $plugin_admin, 'entry_filter_query', 10, 3 );
+		
+		// Settings Menu & Option Registration
+		$this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_menu');
+		$this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
+		
+		// Custom Columns & Filters for the "Tappe" (Entries) lists
+		$this->loader->add_filter('manage_td_entry_posts_columns', $plugin_admin, 'set_custom_td_entry_columns');
+		$this->loader->add_action('manage_td_entry_posts_custom_column', $plugin_admin, 'custom_td_entry_column', 10, 2);
+		
+		$this->loader->add_action('restrict_manage_posts', $plugin_admin, 'filter_td_entry_by_trip');
+		$this->loader->add_action('pre_get_posts', $plugin_admin, 'filter_td_entry_query');
 
 	}
 
@@ -214,6 +225,11 @@ class Travel_Diary {
 		 */
 		$this->loader->add_action( 'wp_insert_post', $plugin_public, 'new_category_trip', 10, 3);
 		$this->loader->add_action( 'before_delete_post', $plugin_public, 'trip_delete' );
+		
+		/**
+		 * Sincronizziamo la Categoria assegnata al Viaggio sulle Tappe associate dopo che i custom fields sono salvati.
+		 */
+		$this->loader->add_action( 'acf/save_post', $plugin_public, 'sync_trip_entries_taxonomies', 20 );
 	}
 
 	/**
