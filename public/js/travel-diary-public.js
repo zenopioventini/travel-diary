@@ -1,32 +1,55 @@
 (function( $ ) {
 	'use strict';
-
-	/**
-	 * All of the code for your public-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
-
+	$(function() {
+		// Eventuali listener addizionali DOM
+	});
 })( jQuery );
+
+function initTravelDiaryMap() {
+	if (typeof tdTripMapData !== 'undefined' && tdTripMapData.length > 0) {
+		var mapContainer = document.getElementById('td-trip-map') || document.getElementById('td-entry-map');
+		if (mapContainer) {
+			var bounds = new google.maps.LatLngBounds();
+			var map = new google.maps.Map(mapContainer, {
+				zoom: 4,
+				center: {lat: parseFloat(tdTripMapData[0].lat), lng: parseFloat(tdTripMapData[0].lng)},
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
+			
+			var pathCoordinates = [];
+
+			tdTripMapData.forEach(function(markerData) {
+				var position = new google.maps.LatLng(parseFloat(markerData.lat), parseFloat(markerData.lng));
+				bounds.extend(position);
+				pathCoordinates.push(position);
+				
+				var marker = new google.maps.Marker({
+					position: position,
+					map: map,
+					title: markerData.title
+				});
+
+				if (markerData.url && markerData.url !== '') {
+					marker.addListener('click', function() {
+						window.location.href = markerData.url;
+					});
+				}
+			});
+
+			if (tdTripMapData.length > 1) {
+				map.fitBounds(bounds);
+				var flightPath = new google.maps.Polyline({
+					path: pathCoordinates,
+					geodesic: true,
+					strokeColor: '#FF6b6b',
+					strokeOpacity: 1.0,
+					strokeWeight: 4
+				});
+				flightPath.setMap(map);
+			} else if (tdTripMapData.length === 1) {
+				map.setCenter(bounds.getCenter());
+				map.setZoom(12);
+			}
+		}
+	}
+}

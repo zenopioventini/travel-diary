@@ -96,6 +96,11 @@ class Travel_Diary_Public {
 		 * class.
 		 */
 
+		$api_key = get_option('td_gmap_api_key');
+		if (!empty($api_key)) {
+			wp_enqueue_script( $this->plugin_name . '-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . esc_attr($api_key) . '&callback=initTravelDiaryMap', array(), $this->version, true );
+		}
+		
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/travel-diary-public.js', array( 'jquery' ), $this->version, false );
 
 	}
@@ -181,6 +186,42 @@ class Travel_Diary_Public {
 			}
 		}
 	}
-	//add_action( 'before_delete_post', 'my_func' );
+	
+	/**
+	 * Append Custom Templates to Single Trip and Single Entry
+	 */
+	public function append_travel_diary_templates( $content ) {
+		if ( is_singular( Travel_Diary_Cpt_Trip::POST_TYPE ) && in_the_loop() && is_main_query() ) {
+			// Soluzione pulita WP: rimuoviamo l'hook corrente per non re-innescarlo dentro i partials
+			remove_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
+			
+			ob_start();
+			include plugin_dir_path( __FILE__ ) . 'partials/travel-diary-single-trip.php';
+			$custom_content = ob_get_clean();
+			
+			// Lo re-iniettiamo subito dopo
+			add_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
+			
+			return $content . $custom_content;
+		}
+		
+		if ( is_singular( Travel_Diary_Cpt_Entry::POST_TYPE ) && in_the_loop() && is_main_query() ) {
+			remove_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
+			
+			ob_start();
+			include plugin_dir_path( __FILE__ ) . 'partials/travel-diary-single-entry.php';
+			$custom_content = ob_get_clean();
+			
+			$prepend = '';
+			if (isset($td_entry_nav_html)) {
+				$prepend = $td_entry_nav_html;
+			}
+			
+			add_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
+			return $prepend . $content . $custom_content;
+		}
+		
+		return $content;
+	}
 
 }

@@ -106,6 +106,17 @@ class Travel_Diary_Admin {
 		$args['author'] = $author;
 		return $args;
 	}
+
+	/**
+	 * Configura ACF per l'utilizzo delle Google Maps API nel backend
+	 */
+	public function setup_acf_google_map_api( $api ){
+		$api_key = get_option('td_gmap_api_key');
+		if( !empty($api_key) ) {
+			$api['key'] = $api_key;
+		}
+		return $api;
+	}
 	
 	/**
 	 * Settings Menu

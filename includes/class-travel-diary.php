@@ -192,6 +192,9 @@ class Travel_Diary {
 		$this->loader->add_action('restrict_manage_posts', $plugin_admin, 'filter_td_entry_by_trip');
 		$this->loader->add_action('pre_get_posts', $plugin_admin, 'filter_td_entry_query');
 
+		// Inietta la API Key in ACF Backend
+		$this->loader->add_filter('acf/fields/google_map/api', $plugin_admin, 'setup_acf_google_map_api');
+
 	}
 
 	/**
@@ -230,6 +233,11 @@ class Travel_Diary {
 		 * Sincronizziamo la Categoria assegnata al Viaggio sulle Tappe associate dopo che i custom fields sono salvati.
 		 */
 		$this->loader->add_action( 'acf/save_post', $plugin_public, 'sync_trip_entries_taxonomies', 20 );
+
+		/**
+		 * Gestione Layout Frontend (Frontend Templates)
+		 */
+		$this->loader->add_filter( 'the_content', $plugin_public, 'append_travel_diary_templates', 20 );
 	}
 
 	/**
