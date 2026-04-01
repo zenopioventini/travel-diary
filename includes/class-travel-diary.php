@@ -144,6 +144,21 @@ class Travel_Diary {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-travel-diary-public.php';
 
+		/**
+		 * Sistema di Privacy Viaggi.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-privacy.php';
+
+		/**
+		 * Sistema di Galleria Fotografica.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-gallery.php';
+
+		/**
+		 * Sistema di Video in Evidenza.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-video.php';
+
 		$this->loader = new Travel_Diary_Loader();
 
 	}
@@ -195,6 +210,30 @@ class Travel_Diary {
 		// Inietta la API Key in ACF Backend
 		$this->loader->add_filter('acf/fields/google_map/api', $plugin_admin, 'setup_acf_google_map_api');
 
+		// Sistema Privacy: Meta Box in Admin
+		$plugin_privacy = new Travel_Diary_Privacy();
+		$this->loader->add_action( 'init',             $plugin_privacy, 'register_privacy_meta' );
+		$this->loader->add_action( 'add_meta_boxes',   $plugin_privacy, 'add_privacy_meta_box' );
+		$this->loader->add_action( 'admin_head',       $plugin_privacy, 'hide_reorder_buttons' );
+		$this->loader->add_action( 'save_post',        $plugin_privacy, 'save_privacy_meta' );
+		$this->loader->add_action( 'rest_after_insert_' . Travel_Diary_Cpt_Trip::POST_TYPE, $plugin_privacy, 'rest_after_insert_trip' );
+		$this->loader->add_action( 'wp_ajax_td_regenerate_token',  $plugin_privacy, 'ajax_regenerate_token' );
+		$this->loader->add_action( 'wp_ajax_td_save_token_expiry', $plugin_privacy, 'ajax_save_token_expiry' );
+
+		// Sistema Galleria Foto e Media Library
+		$plugin_gallery = new Travel_Diary_Gallery();
+		$this->loader->add_action( 'init', $plugin_gallery, 'register_gallery_meta' );
+		$this->loader->add_action( 'add_meta_boxes', $plugin_gallery, 'add_gallery_meta_boxes' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_gallery, 'enqueue_admin_scripts' );
+		$this->loader->add_action( 'save_post', $plugin_gallery, 'save_gallery_meta' );
+		$this->loader->add_filter( 'ajax_query_attachments_args', $plugin_gallery, 'filter_media_library' );
+
+		// Sistema Video in Evidenza
+		$plugin_video = new Travel_Diary_Video();
+		$this->loader->add_action( 'init', $plugin_video, 'register_video_meta' );
+		$this->loader->add_action( 'add_meta_boxes', $plugin_video, 'add_video_meta_boxes' );
+		$this->loader->add_action( 'save_post', $plugin_video, 'save_video_meta' );
+
 	}
 
 	/**
@@ -238,6 +277,10 @@ class Travel_Diary {
 		 * Gestione Layout Frontend (Frontend Templates)
 		 */
 		$this->loader->add_filter( 'the_content', $plugin_public, 'append_travel_diary_templates', 20 );
+
+		// Sistema Privacy: controllo accesso frontend
+		$plugin_privacy = new Travel_Diary_Privacy();
+		$this->loader->add_action( 'template_redirect', $plugin_privacy, 'check_access' );
 	}
 
 	/**

@@ -30,7 +30,17 @@ class Travel_Diary_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+		// Registra i CPT prima del flush, altrimenti le loro regole non vengono incluse
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/post-types/class-travel-diary-cpt-trip.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/post-types/class-travel-diary-cpt-entry.php';
 
+		$cpt_trip  = new Travel_Diary_Cpt_Trip();
+		$cpt_entry = new Travel_Diary_Cpt_Entry();
+		$cpt_trip->create_post_type();
+		$cpt_entry->create_post_type();
+
+		// Flush hard: riscrive anche il .htaccess
+		flush_rewrite_rules( true );
 	}
 
 }
