@@ -159,6 +159,11 @@ class Travel_Diary {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-video.php';
 
+		/**
+		 * Sistema di Geolocalizzazione EXIF.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-exif.php';
+
 		$this->loader = new Travel_Diary_Loader();
 
 	}
@@ -233,6 +238,11 @@ class Travel_Diary {
 		$this->loader->add_action( 'init', $plugin_video, 'register_video_meta' );
 		$this->loader->add_action( 'add_meta_boxes', $plugin_video, 'add_video_meta_boxes' );
 		$this->loader->add_action( 'save_post', $plugin_video, 'save_video_meta' );
+
+		// Sistema Geolocalizzazione EXIF
+		$plugin_exif = new Travel_Diary_Exif();
+		$this->loader->add_action( 'init',           $plugin_exif, 'register_exif_meta' );
+		$this->loader->add_action( 'add_attachment', $plugin_exif, 'extract_on_upload' );
 
 	}
 

@@ -191,36 +191,6 @@ class Travel_Diary_Public {
 	 * Append Custom Templates to Single Trip and Single Entry
 	 */
 	public function append_travel_diary_templates( $content ) {
-		if ( is_singular( Travel_Diary_Cpt_Trip::POST_TYPE ) && in_the_loop() && is_main_query() ) {
-			// Soluzione pulita WP: rimuoviamo l'hook corrente per non re-innescarlo dentro i partials
-			remove_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
-			
-			ob_start();
-			include plugin_dir_path( __FILE__ ) . 'partials/travel-diary-single-trip.php';
-			$custom_content = ob_get_clean();
-			
-			// Lo re-iniettiamo subito dopo
-			add_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
-			
-			return $content . $custom_content;
-		}
-		
-		if ( is_singular( Travel_Diary_Cpt_Entry::POST_TYPE ) && in_the_loop() && is_main_query() ) {
-			remove_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
-			
-			ob_start();
-			include plugin_dir_path( __FILE__ ) . 'partials/travel-diary-single-entry.php';
-			$custom_content = ob_get_clean();
-			
-			$prepend = '';
-			if (isset($td_entry_nav_html)) {
-				$prepend = $td_entry_nav_html;
-			}
-			
-			add_filter( 'the_content', array( $this, 'append_travel_diary_templates' ), 20 );
-			return $prepend . $content . $custom_content;
-		}
-		
 		return $content;
 	}
 

@@ -219,6 +219,36 @@ class Travel_Diary_Privacy {
 			'side',
 			'high'
 		);
+
+		// Stessa sezione EXIF (solo opt-out, niente privacy) anche sulle Tappe
+		add_meta_box(
+			'td_entry_exif_box',
+			'<span class="dashicons dashicons-location" style="vertical-align:middle;"></span> ' . __( 'Geolocalizzazione Foto', 'travel-diary' ),
+			array( $this, 'render_exif_meta_box_entry' ),
+			Travel_Diary_Cpt_Entry::POST_TYPE,
+			'side',
+			'low'
+		);
+	}
+
+	/**
+	 * Meta box EXIF semplice per le Tappe (solo opt-out, nessuna logica privacy).
+	 */
+	public function render_exif_meta_box_entry( WP_Post $post ) {
+		?>
+		<label style="font-size:11px; display:flex; align-items:flex-start; gap:6px; cursor:pointer; margin-top:4px;">
+			<input type="checkbox" name="td_exif_disabled" value="1"
+				<?php checked( get_post_meta( $post->ID, Travel_Diary_Exif::META_DISABLED, true ), '1' ); ?>
+				style="margin-top:2px; flex-shrink:0;">
+			<span style="color:#555; line-height:1.4; font-size:11px;">
+				<?php _e( 'Non usare i dati GPS delle foto di questa tappa sulla mappa.', 'travel-diary' ); ?>
+			</span>
+		</label>
+		<p style="font-size:10px; color:#888; margin-top:6px; margin-bottom:0;">
+			<span class="dashicons dashicons-info-outline" style="font-size:12px;vertical-align:middle;"></span>
+			<?php _e( ' Se le foto contengono coordinate GPS (EXIF), vengono usate per posizionarle automaticamente sulla mappa del viaggio.', 'travel-diary' ); ?>
+		</p>
+		<?php
 	}
 
 	/**
@@ -376,6 +406,26 @@ class Travel_Diary_Privacy {
 			});
 		})(jQuery);
 		</script>
+		<!-- Sezione EXIF / GPS opt-out -->
+		<div style="border-top:1px solid #ddd; padding-top:10px; margin-top:8px;">
+			<p style="font-size:11px; font-weight:600; margin-bottom:6px;">
+				<span class="dashicons dashicons-location" style="vertical-align:middle;font-size:14px;"></span>
+				<?php _e( ' Geolocalizzazione Foto', 'travel-diary' ); ?>
+			</p>
+			<label style="font-size:11px; display:flex; align-items:flex-start; gap:6px; cursor:pointer;">
+				<input type="checkbox" name="td_exif_disabled" value="1"
+					<?php checked( get_post_meta( $post->ID, Travel_Diary_Exif::META_DISABLED, true ), '1' ); ?>
+					style="margin-top:2px; flex-shrink:0;">
+				<span style="color:#555; line-height:1.4;">
+					<?php _e( 'Non usare i dati GPS delle foto di questo viaggio sulla mappa.', 'travel-diary' ); ?>
+				</span>
+			</label>
+			<p style="font-size:10px; color:#888; margin-top:4px;">
+				<span class="dashicons dashicons-info-outline" style="font-size:12px;vertical-align:middle;"></span>
+				<?php _e( ' Se le foto contengono dati GPS (EXIF), vengono usati automaticamente per posizionarle sulla mappa del viaggio.', 'travel-diary' ); ?>
+			</p>
+		</div>
+
 		<?php
 	}
 
@@ -399,6 +449,12 @@ class Travel_Diary_Privacy {
 					self::generate_token( $post_id );
 				}
 			}
+		}
+
+		// Salva opt-out EXIF (checkbox) per Trip e Entry
+		if ( in_array( get_post_type( $post_id ), array( Travel_Diary_Cpt_Trip::POST_TYPE, Travel_Diary_Cpt_Entry::POST_TYPE ), true ) ) {
+			$disabled = isset( $_POST['td_exif_disabled'] ) ? '1' : '';
+			update_post_meta( $post_id, Travel_Diary_Exif::META_DISABLED, $disabled );
 		}
 	}
 
