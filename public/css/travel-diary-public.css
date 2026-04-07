@@ -2,3 +2,81 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+/* ── Mappa Interattiva (Leaflet) Override ── */
+.td-cluster {
+	background-color: rgba(212, 148, 58, 0.9);
+	border: 3px solid rgba(255, 255, 255, 0.3);
+	color: #1a1a1a;
+	text-align: center;
+	border-radius: 50%;
+	font-weight: 800;
+	font-family: 'Inter', sans-serif;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+	transition: transform 0.2s;
+}
+.td-cluster:hover { transform: scale(1.1); }
+
+.td-cluster-small { font-size: 14px; }
+.td-cluster-medium { font-size: 16px; min-width: 48px!important; min-height: 48px!important; margin-left: -24px!important; margin-top: -24px!important; }
+.td-cluster-large  { font-size: 18px; min-width: 56px!important; min-height: 56px!important; margin-left: -28px!important; margin-top: -28px!important; }
+
+.td-custom-div-icon {
+	background: transparent;
+	border: none;
+}
+
+.td-marker-entry {
+	background-color: #d4943a;
+	border: 3px solid #1a1a1a;
+	border-radius: 50%;
+	color: #1a1a1a;
+	text-align: center;
+	line-height: 28px; /* iconSize is 36, border 3x2, so internal height is 30 */
+	box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+	display:flex;
+	justify-content:center;
+	align-items:center;
+}
+.td-marker-entry .dashicons { font-size: 20px; width: 20px; height: 20px; }
+
+.td-marker-photo.td-marker-has-img {
+	background: #111;
+	border-radius: 4px;
+	border: 2px solid #fff;
+	box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+	overflow: hidden;
+}
+.td-marker-photo img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.td-marker-photo.td-marker-icon-only {
+	background-color: #333;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	color: #fff;
+	text-align: center;
+	line-height: 30px;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+	display:flex;
+	justify-content:center;
+	align-items:center;
+}
+.td-marker-photo.td-marker-icon-only .dashicons { font-size: 18px; width: 18px; height: 18px; }
+
+.leaflet-popup-content-wrapper {
+	background-color: #f5f0e8 !important;
+	color: #1a1a1a !important;
+	border-radius: 8px !important;
+	padding: 4px !important;
+}
+.leaflet-popup-tip {
+	background-color: #f5f0e8 !important;
+}

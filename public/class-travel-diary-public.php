@@ -73,6 +73,10 @@ class Travel_Diary_Public {
 		 * class.
 		 */
 
+		wp_enqueue_style( 'leaflet-core', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', array(), '1.9.4' );
+		wp_enqueue_style( 'leaflet-cluster', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css', array(), '1.5.3' );
+		wp_enqueue_style( 'leaflet-cluster-default', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css', array(), '1.5.3' );
+		
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/travel-diary-public.css', array(), $this->version, 'all' );
 
 	}
@@ -96,10 +100,12 @@ class Travel_Diary_Public {
 		 * class.
 		 */
 
-		$api_key = get_option('td_gmap_api_key');
-		if (!empty($api_key)) {
-			wp_enqueue_script( $this->plugin_name . '-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . esc_attr($api_key) . '&callback=initTravelDiaryMap', array(), $this->version, true );
-		}
+		// Carica Leaflet e il plugin MarkerCluster via CDN
+		wp_enqueue_script( 'leaflet-core', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true );
+		wp_enqueue_script( 'leaflet-cluster', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js', array('leaflet-core'), '1.5.3', true );
+
+		// Script applicativo per innescare e disegnare la mappa
+		wp_enqueue_script( $this->plugin_name . '-leaflet', plugin_dir_url( __FILE__ ) . 'js/travel-diary-leaflet.js', array( 'jquery', 'leaflet-core', 'leaflet-cluster' ), $this->version, true );
 		
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/travel-diary-public.js', array( 'jquery' ), $this->version, false );
 
