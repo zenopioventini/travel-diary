@@ -206,11 +206,22 @@ class Travel_Diary_Exif {
 
 				$thumb = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
 
+				// Titolo: usa alt text se presente, altrimenti il nome del file (senza estensione)
+				$title = trim( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) );
+				if ( empty( $title ) ) {
+					$filename = get_the_title( $attachment_id ); // WP usa il nome file come titolo
+					$title    = $filename ? $filename : pathinfo( get_attached_file( $attachment_id ), PATHINFO_FILENAME );
+					// Rimuove estensione residua e normalizza separatori
+					$title = preg_replace( '/\.[a-zA-Z]{2,5}$/', '', $title );
+					$title = str_replace( array( '-', '_' ), ' ', $title );
+				}
+
 				$markers[] = array(
 					'id'    => $attachment_id,
 					'lat'   => $coords['lat'],
 					'lng'   => $coords['lng'],
 					'thumb' => $thumb ?: '',
+					'title' => $title,
 				);
 			}
 		};

@@ -100,12 +100,29 @@
 
 			// Costruzione dinamica del Popup
 			var popupHtml = '<div class="td-map-popup">';
+
 			if (isPhoto && point.thumb) {
 				popupHtml += '<img src="' + point.thumb + '" alt="Thumbnail" style="width:100%; height:auto; border-radius:4px; margin-bottom:8px;" />';
 			}
+
 			if (isPoi) {
-				popupHtml += '<span style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#d4943a; display:block; margin-bottom:4px;">\uD83D\uDCCD Punto di Interesse</span>';
+				// Immagine del POI (se disponibile)
+				if (point.thumb) {
+					popupHtml += '<img src="' + point.thumb + '" alt="" style="width:100%; height:80px; object-fit:cover; border-radius:4px; margin-bottom:8px;" />';
+				}
+				// Badge categoria con emoji
+				var catLabels = {
+					'cultura':   '\uD83C\uDFDB\uFE0F Cultura & Musei',
+					'cibo':      '\uD83C\uDF7D\uFE0F Cibo & Ristorazione',
+					'natura':    '\uD83C\uDF32 Natura & Parchi',
+					'viewpoint': '\uD83D\uDCF8 Punto Panoramico',
+					'relax':     '\uD83D\uDC86 Relax',
+					'alloggio':  '\uD83C\uDFE8 Alloggio'
+				};
+				var catLabel = point.cat ? (catLabels[point.cat] || point.cat) : 'Punto di Interesse';
+				popupHtml += '<span style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#d4943a; display:block; margin-bottom:4px;">' + catLabel + '</span>';
 			}
+
 			popupHtml += '<strong style="display:block; margin-bottom:4px; color:#1a1a1a;">' + point.title + '</strong>';
 			if (point.url) {
 				popupHtml += '<a href="' + point.url + '" style="color:#0073aa; text-decoration:none;">Vedi dettaglio \u2192</a>';

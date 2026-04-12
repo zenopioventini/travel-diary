@@ -128,6 +128,11 @@ class Travel_Diary {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-loader.php';
 
 		/**
+		 * The class responsible for handling SVG icons.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-travel-diary-icons.php';
+
+		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */

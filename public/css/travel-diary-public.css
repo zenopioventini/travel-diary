@@ -4,6 +4,9 @@
  */
 
 /* ── Mappa Interattiva (Leaflet) Override ── */
+.td-icon { stroke: currentColor; fill: none; flex-shrink: 0; }
+.td-inline-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; stroke: currentColor; fill: none; }
+
 .td-cluster {
 	background-color: rgba(212, 148, 58, 0.9);
 	border: 3px solid rgba(255, 255, 255, 0.3);

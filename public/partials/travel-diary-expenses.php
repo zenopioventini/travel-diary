@@ -28,7 +28,7 @@ foreach ( $costi as $costo ) {
 
 <section class="td-expenses-section" aria-label="<?php esc_attr_e( 'Spese della Tappa', 'travel-diary' ); ?>">
 	<h3 class="td-expenses-section__title">
-		<span class="dashicons dashicons-chart-pie" style="vertical-align:middle;"></span>
+		<?php echo Travel_Diary_Icons::get('euro', ['width'=>20,'height'=>20,'class'=>'td-inline-icon','style'=>'vertical-align:-4px;margin-right:6px;']); ?>
 		<?php _e( 'Dashboard Spese', 'travel-diary' ); ?>
 	</h3>
 
@@ -49,17 +49,14 @@ foreach ( $costi as $costo ) {
 						$importo = floatval( $costo['importo'] ?? 0 );
 						$valuta = $costo['valuta'] ?? 'EUR';
 						
-						// Tradurre la categoria in icona/nome
+						// Tradurre la categoria in SVG icon
 						$cat_label = ucfirst( $cat );
-						if ( $cat === 'trasporto' ) $cat_label = '🚗 Trasporto';
-						if ( $cat === 'alloggio' )  $cat_label = '🏨 Alloggio';
-						if ( $cat === 'cibo' )      $cat_label = '🍽️ Cibo';
-						if ( $cat === 'esperienze') $cat_label = '🎭 Esperienze';
-						if ( $cat === 'shopping' )  $cat_label = '🛍️ Shopping';
-						if ( $cat === 'varie' )     $cat_label = '💸 Varie';
+						$icon_svg = Travel_Diary_Icons::get($cat, ['width'=>14, 'height'=>14, 'class'=>'td-inline-icon', 'style'=>'margin-right:4px;vertical-align:-2px;']);
+						
+						if ($cat === 'cibo') $cat_label = 'Cibo / Ristorazione';
 					?>
 					<tr>
-						<td><span class="td-exp-cat"><?php echo esc_html( $cat_label ); ?></span></td>
+						<td><span class="td-exp-cat"><?php echo $icon_svg . esc_html( $cat_label ); ?></span></td>
 						<td class="td-exp-note"><?php echo esc_html( $dettaglio ); ?></td>
 						<td class="td-text-right"><strong><?php echo number_format( $importo, 2, ',', '.' ) . ' ' . esc_html( $valuta ); ?></strong></td>
 					</tr>
