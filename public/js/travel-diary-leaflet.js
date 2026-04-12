@@ -60,9 +60,11 @@
 
 			// Riconoscimento del tipo di marker
 			var isPhoto = (point.type === 'photo');
-			
+			var isPoi   = (point.type === 'poi');
+			var isEntry = !isPhoto && !isPoi;
+
 			// Solo le tappe primarie concorrono alla linea tracciante
-			if (!isPhoto && isTripMap) {
+			if (isEntry && isTripMap) {
 				pathCoords.push(latLng);
 			}
 
@@ -78,7 +80,10 @@
 					customIconHtml = '<span class="dashicons dashicons-camera"></span>';
 					iconClass = 'td-marker-photo td-marker-icon-only';
 				}
-			} else { // Entry / Tappa
+			} else if (isPoi) {
+				customIconHtml = '<span class="dashicons dashicons-star-filled"></span>';
+				iconClass = 'td-marker-poi';
+			} else { // Entry / Tappa principale
 				customIconHtml = '<span class="dashicons dashicons-location"></span>';
 				iconClass = 'td-marker-entry';
 			}
@@ -98,9 +103,12 @@
 			if (isPhoto && point.thumb) {
 				popupHtml += '<img src="' + point.thumb + '" alt="Thumbnail" style="width:100%; height:auto; border-radius:4px; margin-bottom:8px;" />';
 			}
+			if (isPoi) {
+				popupHtml += '<span style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#d4943a; display:block; margin-bottom:4px;">\uD83D\uDCCD Punto di Interesse</span>';
+			}
 			popupHtml += '<strong style="display:block; margin-bottom:4px; color:#1a1a1a;">' + point.title + '</strong>';
 			if (point.url) {
-				popupHtml += '<a href="' + point.url + '" style="color:#0073aa; text-decoration:none;">Vedi dettaglio →</a>';
+				popupHtml += '<a href="' + point.url + '" style="color:#0073aa; text-decoration:none;">Vedi dettaglio \u2192</a>';
 			}
 			popupHtml += '</div>';
 

@@ -71,6 +71,20 @@
 }
 .td-marker-photo.td-marker-icon-only .dashicons { font-size: 18px; width: 18px; height: 18px; }
 
+/* Marker POI - Stella d'oro su sfondo scuro */
+.td-marker-poi {
+	background-color: #1a1a1a;
+	border: 2px solid #d4943a;
+	border-radius: 50%;
+	color: #d4943a;
+	text-align: center;
+	box-shadow: 0 3px 10px rgba(212, 148, 58, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.td-marker-poi .dashicons { font-size: 18px; width: 18px; height: 18px; }
+
 .leaflet-popup-content-wrapper {
 	background-color: #f5f0e8 !important;
 	color: #1a1a1a !important;

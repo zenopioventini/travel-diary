@@ -8,7 +8,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Usa il prenome per i field ACF
-$poi_list = function_exists('get_field') ? get_field( 'td_poi_list', get_the_ID() ) : false;
+$poi_list = function_exists('get_field') ? get_field( 'field_entry_poi_list', get_the_ID() ) : false;
 
 if ( empty( $poi_list ) ) return;
 ?>
