@@ -28,7 +28,7 @@ if ( empty( $ids ) ) return;
 	<div class="td-gallery__grid">
 		<?php foreach ( $ids as $i => $attachment_id ) :
 			$full  = wp_get_attachment_image_src( $attachment_id, 'large' );
-			$thumb = wp_get_attachment_image_src( $attachment_id, 'medium' );
+			$thumb = wp_get_attachment_image_src( $attachment_id, 'medium_large' );
 			$alt   = trim( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) );
 			if ( ! $full || ! $thumb ) continue;
 			$lb_id = 'td-lb-' . $post_id . '-' . $i;

@@ -360,12 +360,21 @@ class Travel_Diary_Privacy {
 		(function($){
 			// Toggle sezione token al cambio visibilita'
 			$('#td_visibility').on('change', function(){
-				$('#td_token_section').toggle( $(this).val() === 'token' );
+				var isToken = $(this).val() === 'token';
+				$('#td_token_section').toggle( isToken );
+				
+				// Generazione proattiva se vuoto
+				if (isToken && $('#td_no_token').is(':visible') && $('#td_share_url').length === 0) {
+					// Disabilita momentaneamente alert
+					window.td_auto_gen = true;
+					$('#td_regenerate_token').trigger('click');
+				}
 			});
 
 			// Rigenera token
 			$('#td_regenerate_token').on('click', function(){
-				if ( ! confirm('<?php echo esc_js( __( 'Sicuro? Il vecchio link smettera di funzionare.', 'travel-diary' ) ); ?>') ) return;
+				if (!window.td_auto_gen && !confirm('<?php echo esc_js( __( 'Sicuro? Il vecchio link smettera di funzionare.', 'travel-diary' ) ); ?>') ) return;
+				window.td_auto_gen = false;
 				var btn = $(this);
 				btn.prop('disabled', true);
 				$.post(ajaxurl, {
