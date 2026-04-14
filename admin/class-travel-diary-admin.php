@@ -222,13 +222,17 @@ class Travel_Diary_Admin {
 
 	public function filter_td_entry_query($query) {
 		global $pagenow;
-		$type = 'post';
-		if (isset($_GET['post_type'])) {
-			$type = $_GET['post_type'];
+		
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
 		}
-		if ('td_entry' == $type && is_admin() && $pagenow == 'edit.php' && isset($_GET['td_trip_cat_filter']) && $_GET['td_trip_cat_filter'] != '0') {
-			$term = get_term_by('id', $_GET['td_trip_cat_filter'], 'td_trip_cat');
-			if ($term) {
+
+		$type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+		
+		// 1. Filtro tassonomia per dropdown (manteniamo quello esistente)
+		if ( 'td_entry' == $type && $pagenow == 'edit.php' && isset( $_GET['td_trip_cat_filter'] ) && $_GET['td_trip_cat_filter'] != '0' ) {
+			$term = get_term_by( 'id', $_GET['td_trip_cat_filter'], 'td_trip_cat' );
+			if ( $term ) {
 				$query->query_vars['tax_query'] = array(
 					array(
 						'taxonomy' => 'td_trip_cat',
@@ -236,6 +240,15 @@ class Travel_Diary_Admin {
 						'terms'    => $_GET['td_trip_cat_filter']
 					)
 				);
+			}
+		}
+
+		// 2. ISOLAMENTO UTENTI (Privacy backend)
+		// Se l'utente non ha i permessi per vedere i post degli altri (es. è un semplice Autore/Contributor)
+		// forziamo la query a mostrare solo i suoi post per Tappe e Viaggi.
+		if ( ( 'td_entry' === $type || 'td_trip' === $type ) && $pagenow == 'edit.php' ) {
+			if ( ! current_user_can( 'edit_others_posts' ) ) {
+				$query->set( 'author', get_current_user_id() );
 			}
 		}
 	}
