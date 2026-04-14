@@ -296,6 +296,12 @@ class Travel_Diary {
 		// Sistema Privacy: controllo accesso frontend
 		$plugin_privacy = new Travel_Diary_Privacy();
 		$this->loader->add_action( 'template_redirect', $plugin_privacy, 'check_access' );
+
+		// Localizzazione url autore (author -> viaggiatore)
+		$this->loader->add_action( 'init', $plugin_public, 'change_author_base' );
+
+		// Filtro Frontend Queries (Archivi e Autore)
+		$this->loader->add_action( 'pre_get_posts', $plugin_public, 'filter_public_archives' );
 	}
 
 	/**

@@ -200,4 +200,55 @@ class Travel_Diary_Public {
 		return $content;
 	}
 
+	/**
+	 * Modifica la base dell'URL per la pagina autore da "author" a "viaggiatore"
+	 */
+	public function change_author_base() {
+		global $wp_rewrite;
+		$wp_rewrite->author_base = 'viaggiatore';
+	}
+
+	/**
+	 * Filtra la WP_Query per nascondere i viaggi Privati/Token dagli archivi pubblici 
+	 * e per includere i Viaggi nella pagina Autore.
+	 */
+	public function filter_public_archives( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		// Se siamo su the author page, vogliamo mostrare I VIAGGI dell'autore, non gli articoli del blog
+		if ( $query->is_author() ) {
+			$query->set( 'post_type', array( Travel_Diary_Cpt_Trip::POST_TYPE ) );
+		}
+
+		// Se stiamo interrogando la pagina Autore (ora impostata su td_trip) o l'archivio globale dei viaggi:
+		// Assicuriamoci che veda SOLO i viaggi Pubblici.
+		$is_trip_archive = $query->is_post_type_archive( Travel_Diary_Cpt_Trip::POST_TYPE );
+		$is_trip_author  = $query->is_author() && in_array( Travel_Diary_Cpt_Trip::POST_TYPE, (array) $query->get( 'post_type' ) );
+
+		if ( $is_trip_archive || $is_trip_author ) {
+			// Costruiamo una meta query per limitare _td_visibility a 'public'
+			// Dato che i vecchi post potrebbero non avere questo meta key salvato, usiamo un fallback.
+			$meta_query = $query->get( 'meta_query' );
+			if ( ! is_array( $meta_query ) ) {
+				$meta_query = array();
+			}
+
+			$meta_query[] = array(
+				'relation' => 'OR',
+				array(
+					'key'     => '_td_visibility',
+					'value'   => 'public',
+					'compare' => '='
+				),
+				array(
+					'key'     => '_td_visibility',
+					'compare' => 'NOT EXISTS'
+				)
+			);
+
+			$query->set( 'meta_query', $meta_query );
+		}
+	}
 }

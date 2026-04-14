@@ -79,7 +79,7 @@ if(!class_exists('Travel_Diary_Cpt_Entry'))
 							"capability_type" => "post",
 							"map_meta_cap" => true,
 							"hierarchical" => false,
-							"rewrite" => array( "slug" => "entry", "with_front" => true ),
+							"rewrite" => array( "slug" => "tappa", "with_front" => true ),
 							"query_var" => true,
 							"supports" => array( "title", "editor", "excerpt", "thumbnail", "comments", "revisions" ),
 					);
