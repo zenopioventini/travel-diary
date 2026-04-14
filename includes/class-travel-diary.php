@@ -302,6 +302,10 @@ class Travel_Diary {
 
 		// Filtro Frontend Queries (Archivi e Autore)
 		$this->loader->add_action( 'pre_get_posts', $plugin_public, 'filter_public_archives' );
+
+		// SEO Search Rewrite
+		$this->loader->add_action( 'init', $plugin_public, 'custom_search_rewrite_rules' );
+		$this->loader->add_action( 'template_redirect', $plugin_public, 'search_rewrite_redirect' );
 	}
 
 	/**

@@ -250,5 +250,43 @@ class Travel_Diary_Public {
 
 			$query->set( 'meta_query', $meta_query );
 		}
+
+		// Se siamo su una ricerca di Viaggi, assicuriamoci di mostrare SOLO i viaggi pubblici
+		if ( $query->is_search() && in_array( Travel_Diary_Cpt_Trip::POST_TYPE, (array) $query->get( 'post_type' ) ) ) {
+			$meta_query = $query->get( 'meta_query' );
+			if ( ! is_array( $meta_query ) ) {
+				$meta_query = array();
+			}
+			$meta_query[] = array(
+				'relation' => 'OR',
+				array( 'key' => '_td_visibility', 'value' => 'public', 'compare' => '=' ),
+				array( 'key' => '_td_visibility', 'compare' => 'NOT EXISTS' )
+			);
+			$query->set( 'meta_query', $meta_query );
+		}
+	}
+
+	/**
+	 * Definisci le nuove Rewrite Rules per /cerca/
+	 */
+	public function custom_search_rewrite_rules() {
+		add_rewrite_rule(
+			'^cerca/([^/]+)/?$',
+			'index.php?s=$matches[1]&post_type=' . Travel_Diary_Cpt_Trip::POST_TYPE,
+			'top'
+		);
+	}
+
+	/**
+	 * Redirigi le chiamate standard ?s=termine verso /cerca/termine/
+	 */
+	public function search_rewrite_redirect() {
+		if ( is_search() && ! empty( $_GET['s'] ) ) {
+			$post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+			if ( $post_type === Travel_Diary_Cpt_Trip::POST_TYPE ) {
+				wp_redirect( home_url( '/cerca/' . urlencode( get_query_var( 's' ) ) . '/' ) );
+				exit();
+			}
+		}
 	}
 }

@@ -105,7 +105,7 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 							"rewrite" => array( "slug" => "viaggio", "with_front" => true ),
 							"query_var" => true,
 							"supports" => array( "title", "editor", "thumbnail", "excerpt", "comments", "revisions",  ),
-							'taxonomies' => array('td_trip_cat'),
+							'taxonomies' => array('td_trip_cat', 'category', 'post_tag'),
 					);
 				
 					register_post_type( self::POST_TYPE, $args );
