@@ -63,9 +63,9 @@
 			var isPoi   = (point.type === 'poi');
 			var isEntry = !isPhoto && !isPoi;
 
-			// Solo le tappe primarie concorrono alla linea tracciante
+			// Solo le tappe primarie concorrono alla rotta
 			if (isEntry && isTripMap) {
-				pathCoords.push(latLng);
+				pathCoords.push(point); // Push the full point object, not just latLng
 			}
 
 			// Custom Icon Engine
@@ -136,15 +136,127 @@
 		// Aggiunge tutte le foto e tappe raggruppate sulla mappa
 		map.addLayer(markers);
 
-		// 5. Tracciare la rotta (Polyline) fra le tappe del Viaggio
-		if (isTripMap && pathCoords.length > 1) {
-			var routeLine = L.polyline(pathCoords, {
-				color: '#d4943a',
-				weight: 3,
-				opacity: 0.8,
-				dashArray: '10, 10', // Linea tratteggiata per stile viaggio aereo/on-the-road
-				lineJoin: 'round'
-			}).addTo(map);
+		// Calcola punto di controllo Bezier
+		function calcControlPoint(A, B, offsetFactor) {
+			var midLat = (A[0] + B[0]) / 2;
+			var midLng = (A[1] + B[1]) / 2;
+			var dLat = B[0] - A[0];
+			var dLng = B[1] - A[1];
+			return [midLat + (-dLng * offsetFactor), midLng + (dLat * offsetFactor)];
+		}
+
+		// 5. Tracciare la rotta fra le tappe del Viaggio in base al tipo
+		if (isTripMap && pathCoords.length > 0) {
+			for (var i = 0; i < pathCoords.length; i++) {
+				var current = pathCoords[i];
+				var next = pathCoords[i + 1] || null;
+
+				if (current.tipo === 'roundtrip' && current.apice_lat) {
+					var base = [current.lat, current.lng];
+					var apex = [current.apice_lat, current.apice_lng];
+					var ctrl1 = calcControlPoint(base, apex, 0.4);
+					var ctrl2 = calcControlPoint(base, apex, -0.4);
+
+					if (typeof L.curve !== 'undefined') {
+						L.curve(['M', base, 'Q', ctrl1, apex], {
+							color: '#d4943a', weight: 2, dashArray: '6,5', opacity: 0.75
+						}).addTo(map);
+
+						L.curve(['M', apex, 'Q', ctrl2, base], {
+							color: '#c0834a', weight: 2, dashArray: '6,5', opacity: 0.5
+						}).addTo(map);
+					} else {
+						// Fallback se leaflet.curve non è caricato
+						L.polyline([base, apex, base], {
+							color: '#d4943a', weight: 2, dashArray: '6,5', opacity: 0.75
+						}).addTo(map);
+					}
+
+					// Aggiungiamo anche il marker dell'apice alla mappa (se non è già tra i POI o foto)
+					var apexMarker = L.circleMarker(apex, {radius: 6, color: '#d4943a', fillOpacity: 0.8}).addTo(map);
+					apexMarker.bindPopup('<strong>Apice Escursione</strong>');
+					bounds.extend(apex);
+				}
+				
+				if (!next) continue;
+
+				if (current.tipo === 'linear' || !current.tipo) {
+					// Linea verso la tappa successiva
+					L.polyline([[current.lat, current.lng], [next.lat, next.lng]], {
+						color: '#d4943a',
+						weight: 3,
+						opacity: 0.8,
+						dashArray: '10, 10',
+						lineJoin: 'round'
+					}).addTo(map);
+				}
+				// Se è stationary o roundtrip, non avanziamo la linea. 
+				// MA se la PROSSIMA tappa è linear o ha una posizione, come ci arriviamo?
+				// Il modello dice: la rotta si disegna verso il "next".
+				// Però se 'current' è stationary/roundtrip, il collegamento verso 'next' 
+				// dovrebbe partire da qui, perché concettualmente "lasciamo la base".
+				// Quindi in realtà, se next esiste, dovremmo collegare current a next a meno che
+				// non abbiamo regole diverse. Il requirement dice: 
+				// "la linea principale del viaggio NON avanza (roundtrip torna alla base)
+				// quindi il prossimo segmento partirà da current, non da apex"
+				// Questo significa che colleghiamo SEMPRE current a next se next esiste,
+				// tranne se c'è un motivo specifico per non farlo.
+				// Ma aspetta, la "Tappa successiva" potrebbe partire dalla stessa base o da un'altra parte.
+				// Rivediamo: tracciamo la linea principale solo dalle basi/linear alla prossima base.
+				// Quindi tracciamo [current, next] SEMPRE, in modo che l'itinerario continui.
+				else if (current.tipo === 'stationary' || current.tipo === 'roundtrip') {
+					L.polyline([[current.lat, current.lng], [next.lat, next.lng]], {
+						color: '#d4943a',
+						weight: 3,
+						opacity: 0.8,
+						dashArray: '10, 10',
+						lineJoin: 'round'
+					}).addTo(map);
+				}
+			}
+		} else if (!isTripMap && tdTripMapData.length > 0) {
+			// Minimappa Singola Tappa
+			var entryData = tdTripMapData[0]; // La prima entry è i dati della tappa principale
+			
+			if (entryData.tipo === 'roundtrip' && entryData.apice_lat) {
+				var base = [entryData.lat, entryData.lng];
+				var apex = [entryData.apice_lat, entryData.apice_lng];
+				var ctrl1 = calcControlPoint(base, apex, 0.4);
+				var ctrl2 = calcControlPoint(base, apex, -0.4);
+
+				if (typeof L.curve !== 'undefined') {
+					L.curve(['M', base, 'Q', ctrl1, apex], {
+						color: '#d4943a', weight: 2, dashArray: '6,5', opacity: 0.75
+					}).addTo(map);
+					L.curve(['M', apex, 'Q', ctrl2, base], {
+						color: '#c0834a', weight: 2, dashArray: '6,5', opacity: 0.5
+					}).addTo(map);
+				} else {
+					L.polyline([base, apex, base], {
+						color: '#d4943a', weight: 2, dashArray: '6,5', opacity: 0.75
+					}).addTo(map);
+				}
+				bounds.extend(apex);
+			}
+
+			if (entryData.tipo === 'linear' && entryData.next_lat) {
+				// Disegna linea dalla tappa attuale alla successiva
+				var start = [entryData.lat, entryData.lng];
+				var end = [entryData.next_lat, entryData.next_lng];
+				
+				L.polyline([start, end], {
+					color: '#d4943a',
+					weight: 3,
+					opacity: 0.6,
+					dashArray: '5, 10', // Tratteggio più largo per indicare "direzione futura"
+					lineJoin: 'round'
+				}).addTo(map);
+				
+				// Aggiungi marker fittizio per la destinazione futura (se non inclusa nei bounds)
+				var nextMarker = L.circleMarker(end, {radius: 5, color: '#666', fillOpacity: 0.5}).addTo(map);
+				nextMarker.bindPopup('<strong>Prossima tappa</strong>');
+				bounds.extend(end);
+			}
 		}
 
 		// 6. Inquadratura finale

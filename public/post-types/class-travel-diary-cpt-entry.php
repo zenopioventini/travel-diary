@@ -94,6 +94,36 @@ if(!class_exists('Travel_Diary_Cpt_Entry'))
 								'title' => 'Campi della tappa',
 								'fields' => array (
 										array (
+												'key' => self::FIELD_PREFIX . 'tipo_tappa',
+												'label' => 'Tipo di Tappa',
+												'name' => self::FIELD_PREFIX . 'tipo_tappa',
+												'type' => 'select',
+												'instructions' => 'Definisce il tipo di spostamento per questa tappa.',
+												'choices' => array(
+													'linear'     => 'Spostamento (A→B)',
+													'stationary' => 'Stanziale (base + POI locali)',
+													'roundtrip'  => 'Escursione Andata/Ritorno',
+												),
+												'default_value' => 'linear',
+												'allow_null' => 0,
+												'return_format' => 'value',
+										),
+										array (
+												'key' => self::FIELD_PREFIX . 'apice_manuale',
+												'label' => 'Punto Apice (Opzionale)',
+												'name' => self::FIELD_PREFIX . 'apice_manuale',
+												'type' => 'google_map',
+												'instructions' => 'Solo per Escursioni A/R: indica il punto più lontano raggiunto (sovrascrive il calcolo automatico).',
+												'center_lat' => '42.972502',
+												'center_lng' => '12.304688',
+												'zoom' => 14,
+												'conditional_logic' => array(array(array(
+													'field' => self::FIELD_PREFIX . 'tipo_tappa',
+													'operator' => '==',
+													'value' => 'roundtrip',
+												))),
+										),
+										array (
 												'key' => self::FIELD_PREFIX . 'data_principale',
 												'label' => 'Data e Ora Principale',
 												'name' => self::FIELD_PREFIX . 'data_principale',

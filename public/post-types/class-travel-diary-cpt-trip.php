@@ -84,7 +84,7 @@ if(!class_exists('Travel_Diary_Cpt_Trip'))
 						'show_ui' => true,
 						'show_admin_column' => true,
 						'query_var' => true,
-						'rewrite' => array( 'slug' => 'viaggio' ),
+						'rewrite' => array( 'slug' => 'categoria-viaggio' ),
 					));
 				
 					$args = array(
